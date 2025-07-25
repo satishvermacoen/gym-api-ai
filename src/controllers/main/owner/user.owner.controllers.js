@@ -1,30 +1,30 @@
 import { asyncHandler } from "../../../utils/asyncHandler.js";
 import { ApiError } from "../../../utils/ApiError.js";
-import { User } from "../../../models/main/users/user.owner.model.js";
+import { UserOwner } from "../../../models/main/userOwners/userOwner.owner.model.js";
 import { uploadOnCloudinary } from "../../../utils/cloudinary.js";
 import { ApiResponse } from "../../../utils/ApiResponse.js";
 
-const registerUser = asyncHandler( async(req, res) => {
+const registerUserOwner = asyncHandler( async(req, res) => {
   
-    // get user details from frontend
-    const { fullName, email, password, username} = req.body
+    // get UserOwner details from frontend
+    const { fullName, email, password, UserOwnername} = req.body
     console.log("email: ", email);
 
     // validation - not empty
     if (
-        [fullName, email, username, password].some((field) => field?.trim() === "")
+        [fullName, email, UserOwnername, password].some((field) => field?.trim() === "")
     ) {
         throw new ApiError(400, "All field are required")
     }
 
-    // check if user already exists: username, email
-    const existeduser = await User.findOne({
-        $or: [{ username }, { email }]
+    // check if UserOwner already exists: UserOwnername, email
+    const existedUserOwner = await UserOwner.findOne({
+        $or: [{ UserOwnername }, { email }]
 
     })
 
-    if (existeduser) {
-        throw new ApiError(409, "User with email or username already exists")
+    if (existedUserOwner) {
+        throw new ApiError(409, "UserOwner with email or UserOwnername already exists")
     }
 
     // check for images, check for avatar
@@ -47,68 +47,68 @@ const registerUser = asyncHandler( async(req, res) => {
         throw new ApiError(400, "Avatar on cloud file is required")  
     }
 
-    // check for user creation
-    const user = await User.create({
+    // check for UserOwner creation
+    const UserOwner = await UserOwner.create({
         fullName,
         avatar: avatar.url,
         coverImage: coverImage?.url || "",
         email,
         password,
-        username: username.toLowerCase()
+        UserOwnername: UserOwnername.toLowerCase()
     })
 
-    const createdUser = await User.findById(user._id).select(
+    const createdUserOwner = await UserOwner.findById(UserOwner._id).select(
         "-password -refreshToken"
     )
 
-    if (!createdUser){
-        throw new ApiError(500, "Something went wrong while registring the user")
+    if (!createdUserOwner){
+        throw new ApiError(500, "Something went wrong while registring the UserOwner")
     }
 
     // return res
     return res.status(201).json(
-        new ApiResponse(200, createdUser, "User registered successfully")
+        new ApiResponse(200, createdUserOwner, "UserOwner registered successfully")
     )
 
 } )
 
-// login User Controller
+// login UserOwner Controller
 
-const loginUser = asyncHandler(async (req, res) => {
+const loginUserOwner = asyncHandler(async (req, res) => {
 
 
-    // get user details from frontend
-    const { email, username, password} = req.body
+    // get UserOwner details from frontend
+    const { email, UserOwnername, password} = req.body
     console.log(email);
     
     // validation - not empty
-    if (!(email || username)) {
-        throw new ApiError(400, "username or email is required for login")
+    if (!(email || UserOwnername)) {
+        throw new ApiError(400, "UserOwnername or email is required for login")
     }
 
-    // check if user exists: username, email
-    const user = await User.findOne({
-        $or: [{username},{email}]
+    // check if UserOwner exists: UserOwnername, email
+    const UserOwner = await UserOwner.findOne({
+        $or: [{UserOwnername},{email}]
 
     }) 
     
 
-    if (!user) {
-        throw new ApiError(404, "User does not exist")
+    if (!UserOwner) {
+        throw new ApiError(404, "UserOwner does not exist")
         
     }
 
     // check for password
-    const isPasswordVaild = await user.isPasswordCorrect(password)
+    const isPasswordVaild = await UserOwner.isPasswordCorrect(password)
 
     if (!isPasswordVaild) {
-        throw new ApiError(401, "Invalid user credentials")        
+        throw new ApiError(401, "Invalid UserOwner credentials")        
     }
 
     // create access token and refresh token
-    const {accessToken, refreshToken} = await generateAccessAndRefereshTokens(user._id)
+    const {accessToken, refreshToken} = await generateAccessAndRefereshTokens(UserOwner._id)
 
-    const loggedInUser = await User.findById(user._id)
+    const loggedInUserOwner = await UserOwner.findById(UserOwner._id)
     .select("-password -refreshtoken")
 
     const options = {
@@ -119,16 +119,16 @@ const loginUser = asyncHandler(async (req, res) => {
     // return res
     return res.status(200).cookie("accessToken", accessToken, options).cookie("refreshToken", refreshToken, options).json(
         new ApiResponse(200, {
-            user: loggedInUser, accessToken, refreshToken
-        }, "User logged In Successfully"
+            UserOwner: loggedInUserOwner, accessToken, refreshToken
+        }, "UserOwner logged In Successfully"
     ))   
 })
 
-// logout User Controller
+// logout UserOwner Controller
 
-const logoutUser = asyncHandler(async(req, res) => {
-    await User.findByIdAndUpdate(
-        req.user._id,
+const logoutUserOwner = asyncHandler(async(req, res) => {
+    await UserOwner.findByIdAndUpdate(
+        req.UserOwner._id,
         {
             $unset: {
                 refreshToken:  "" // this removes the field from document
@@ -148,7 +148,7 @@ const logoutUser = asyncHandler(async(req, res) => {
     .status(200)
     .clearCookie("accessToken", options)
     .clearCookie("refreshToken", options)
-    .json(new ApiResponse(200, {}, "User logged Out"))
+    .json(new ApiResponse(200, {}, "UserOwner logged Out"))
 })
 
 // Endpoint for refreshAccessToken
@@ -166,19 +166,19 @@ const refreshAccessToken = asyncHandler(async(req, res) => {
             incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET
             )
 
-            const user = await User.findById(decodedToken?._id)
+            const UserOwner = await UserOwner.findById(decodedToken?._id)
 
-            if (!user) {
+            if (!UserOwner) {
                 throw new ApiError(401, "Invalid  Refresh Token")
                 
             }
 
-            if (incomingRefreshToken !== user?.refreshToken) {
+            if (incomingRefreshToken !== UserOwner?.refreshToken) {
                 throw new ApiError(401, "Refresh Token Is Expired or used")
                 
             }
 
-            const{accessToken, newRefreshToken} = await generateAccessAndRefereshTokens(user._id)
+            const{accessToken, newRefreshToken} = await generateAccessAndRefereshTokens(UserOwner._id)
 
             return res
             .status(200)
@@ -201,15 +201,15 @@ const refreshAccessToken = asyncHandler(async(req, res) => {
 const changeCurrentPassword = asyncHandler(async(req, res) => {
     const {oldPassword, newPassword} = req.body
 
-    const user = await User.findById(req.user?._id)
-    const isPasswordCorrect = await user.isPasswordCorrect(oldPassword)
+    const UserOwner = await UserOwner.findById(req.UserOwner?._id)
+    const isPasswordCorrect = await UserOwner.isPasswordCorrect(oldPassword)
 
     if (!isPasswordCorrect) {
         throw new ApiError(400, "Invalid old password")
     }
 
-    user.password = newPassword
-    await user.save({validateBeforeSave: false})
+    UserOwner.password = newPassword
+    await UserOwner.save({validateBeforeSave: false})
 
     return res
     .status(200)
@@ -217,13 +217,13 @@ const changeCurrentPassword = asyncHandler(async(req, res) => {
 })
 
 
-const getCurrentUser = asyncHandler(async(req, res) => {
+const getCurrentUserOwner = asyncHandler(async(req, res) => {
     return res
     .status(200)
     .json(new ApiResponse(
         200,
-        req.user,
-        "User fetched successfully"
+        req.UserOwner,
+        "UserOwner fetched successfully"
     ))
 })
 
@@ -234,8 +234,8 @@ const updateAccountDetails = asyncHandler(async(req, res) => {
         throw new ApiError(400, "All fields are required")
     }
 
-    const user = await User.findByIdAndUpdate(
-        req.user?._id,
+    const UserOwner = await UserOwner.findByIdAndUpdate(
+        req.UserOwner?._id,
         {
             $set: {
                 fullName,
@@ -248,10 +248,10 @@ const updateAccountDetails = asyncHandler(async(req, res) => {
 
     return res
     .status(200)
-    .json(new ApiResponse(200, user, "Account details updated successfully"))
+    .json(new ApiResponse(200, UserOwner, "Account details updated successfully"))
 });
 
-const updateUserAvatar = asyncHandler(async(req, res) => {
+const updateUserOwnerAvatar = asyncHandler(async(req, res) => {
     const avatarLocalPath = req.file?.path
 
     if (!avatarLocalPath) {
@@ -267,8 +267,8 @@ const updateUserAvatar = asyncHandler(async(req, res) => {
         
     }
 
-    const user = await User.findByIdAndUpdate(
-        req.user?._id,
+    const UserOwner = await UserOwner.findByIdAndUpdate(
+        req.UserOwner?._id,
         {
             $set:{
                 avatar: avatar.url
@@ -280,11 +280,11 @@ const updateUserAvatar = asyncHandler(async(req, res) => {
     return res
     .status(200)
     .json(
-        new ApiResponse(200, user, "Avatar image updated successfully")
+        new ApiResponse(200, UserOwner, "Avatar image updated successfully")
     )
 })
 
-const updateUserCoverImage = asyncHandler(async(req, res) => {
+const updateUserOwnerCoverImage = asyncHandler(async(req, res) => {
     const coverImageLocalPath = req.file?.path
 
     if (!coverImageLocalPath) {
@@ -301,8 +301,8 @@ const updateUserCoverImage = asyncHandler(async(req, res) => {
         
     }
 
-    const user = await User.findByIdAndUpdate(
-        req.user?._id,
+    const UserOwner = await UserOwner.findByIdAndUpdate(
+        req.UserOwner?._id,
         {
             $set:{
                 coverImage: coverImage.url
@@ -314,15 +314,15 @@ const updateUserCoverImage = asyncHandler(async(req, res) => {
     return res
     .status(200)
     .json(
-        new ApiResponse(200, user, "Cover image updated successfully")
+        new ApiResponse(200, UserOwner, "Cover image updated successfully")
     )
 })
 
 
 export { 
-   registerUser,
-   loginUser,
-   logoutUser,
+   registerUserOwner,
+   loginUserOwner,
+   logoutUserOwner,
    refreshAccessToken,
    changeCurrentPassword
 }

@@ -3,6 +3,11 @@ import mongoose, {Schema} from "mongoose";
 
 const expenseGymSchema = new Schema(
     {
+        typeofExpense: {
+            type: String,
+            enum: ['Bill', 'Rent', 'Other'],
+            required: [true, 'Expense must have a type.'],
+            },
         name: {
             type: String,
             required: [true, 'Expense type must have a name.'],
@@ -18,21 +23,24 @@ const expenseGymSchema = new Schema(
             type: Number,
             required: [true, 'Expense must have an amount.'],
         },
-        upcomingdate: {
+        duedate: {
             type: Date,
             required: [true, 'Expense must have a date.'],
         },
+        status: {
+            type: String,
+            enum: ['Pending', 'Fully Paid', 'Overdue', 'Partially Paid'],
+            default: 'Pending',
+        },
 
 
-        // Scopes the expense type to a specific gym branch.
         branch: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'BranchGym',
+            type: Schema.Types.ObjectId,
+            ref: 'Branch',
             required: [true, 'An expense type must be associated with a branch.'],
         },
-        // The user who created this custom expense type.
         createdBy: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: Schema.Types.ObjectId,
             ref: 'UserOwner',
             required: [true, 'An expense type must have a creator.'],
         },
@@ -43,4 +51,4 @@ const expenseGymSchema = new Schema(
 );
 
 
-export const expenseGym = mongoose.model("ExpenseGym", expenseGymSchema)
+export const Expense = mongoose.model("Expense", expenseGymSchema)

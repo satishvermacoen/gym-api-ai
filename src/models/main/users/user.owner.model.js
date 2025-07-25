@@ -6,7 +6,7 @@ const userOwnerSchema = new Schema(
   {
     username: {
       type: String,
-      required: true,
+      required: false,
       unique: true,
       lowercase: true,
       trim: true,
@@ -34,21 +34,16 @@ const userOwnerSchema = new Schema(
       default: "STAFF",
       required: true,
     },
-    status: {
-      type: String,
-      enum: ["ACTIVE", "INACTIVE", "SUSPENDED"],
-      default: "ACTIVE",
-      required: true,
-    },
+    
     // Reference to the currently active subscription instance for this user
     activeSubscription: {
-      type: Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "UserSubscription",
     },
     // Array of branches this user owns or manages
     ownedBranches: [
       {
-        type: Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: "Branch",
       },
     ],
@@ -60,7 +55,7 @@ const userOwnerSchema = new Schema(
     // Array of warehouses this user has access to
     warehouses: [
         {
-            type: Schema.Types.ObjectId,
+            type: mongoose.Schema.Types.ObjectId,
             ref: "Warehouse"
         }
     ],
@@ -82,20 +77,13 @@ const userOwnerSchema = new Schema(
     refreshToken: {
       type: String,
     },
-    settings: {
-        theme: { type: String, default: "light" },
-        notifications: {
-            email: { type: Boolean, default: true },
-            sms: { type: Boolean, default: false }
-        }
-    }
   },
   {
     timestamps: true,
   }
 );
 
-// --- Mongoose Hooks and Methods ---
+
 
 // Hash password before saving
 userSchema.pre("save", async function (next) {
@@ -139,4 +127,4 @@ userSchema.methods.generateRefreshToken = function () {
   );
 };
 
-export const userOwner = mongoose.model("UserOwner", userOwnerSchema);
+export const UserOwner = mongoose.model("UserOwner", userOwnerSchema);

@@ -4,6 +4,10 @@ import mongoose, {Schema} from "mongoose";
 const membersInGymSchema = new Schema(
     {
         // --- Personal Information ---
+        image: {
+            type: String,
+            require: false
+        },
         firstName: {
             type: String,
             required: [true, 'First name is required.'],
@@ -40,7 +44,7 @@ const membersInGymSchema = new Schema(
             required: [true, 'Mobile number is required.'],
             unique: true,
         },
-        homeNumber: {
+        alternateMobile: {
             type: String,
         },
         physicalStats: {
@@ -51,17 +55,23 @@ const membersInGymSchema = new Schema(
         // --- Membership Preferences ---
         membership: {
             type: {
-            type: String,
-            enum: ['Basic', 'Premium', 'Family'],
-            required: true,
+                type: String,
+                enum: ['Basic', 'Premium', 'Family'],
+                required: true,
             },
             duration: {
-            type: String,
-            enum: ['Monthly', 'Quarterly', 'Annually'],
-            required: true,
+                type: String,
+                enum: ['Monthly', 'Quarterly', 'Annually'],
+                required: true,
             },
             preferredStartDate: Date,
-            classInterests: [String], // e.g., ["Yoga", "HIIT", "Weight Loss"]
+            classInterests:{
+                type: String,
+                enum: ["Zumba", "Pilates", "Barre", "Yoga", "HIIT", "Weight Loss", "Weight Training"],
+                required: true,
+                default: ["Weight Training"],
+
+            }, 
             specialRequests: String,
         },
 
@@ -83,7 +93,7 @@ const membersInGymSchema = new Schema(
             totalAmount: Number,
             paymentMode: {
                 type: String,
-                enum: ['Credit Card', 'Debit Card', 'UPI', 'Cash']
+                enum: ['Credit Card', 'Debit Card', 'UPI', 'Cash', 'Net Banking','Friend Banking']
             },
             paidAmount: Number,
             receivableAmount: Number,
@@ -92,14 +102,18 @@ const membersInGymSchema = new Schema(
 
         // --- System & Branch Information ---
         branch: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: Schema.Types.ObjectId,
             ref: 'Branch',
             required: [true, 'Member must be associated with a branch.'],
         },
-        // Link to the document/image of the physical form
-        formImage: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'MemberImage'
+        createdBy: {
+            type: Schema.Types.ObjectId,
+            ref: 'UserOwner',
+            required: true,
+        },
+        updatedBy: {
+            type: Schema.Types.ObjectId,
+            ref: 'UserOwner',
         },
         isActive: {
             type: Boolean,

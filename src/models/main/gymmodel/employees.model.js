@@ -5,16 +5,26 @@ const employeesInGymSchema = new Schema(
     
     {
         // Link to the primary User model for auth and roles
-        userAccount: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User',
+        user: {
+            type: Schema.Types.ObjectId,
+            ref: 'UserOwner',
+            required: true,
+            unique: true,
+            role: {
+                type: String,
+                enum: [ 'ADMIN', 'MANAGER', 'STAFF'],
+                required: true,
+                default: 'STAFF'
+            }
+        },
+        Branch: {
+            type: Schema.Types.ObjectId,
+            ref: 'Branch',
             required: true,
             unique: true,
         },
-        
-        // --- Personal Information (can be inherited from User or stored here) ---
-        // Note: Some of this data might already exist in the User schema.
-        // You can decide whether to duplicate it here for HR purposes or reference it.
+       
+         // --- Personal Information ---
         firstName: { type: String, required: true, trim: true },
         lastName: { type: String, required: true, trim: true },
         dateOfBirth: { type: Date, required: true },
@@ -26,6 +36,7 @@ const employeesInGymSchema = new Schema(
             pinCode: String,
         },
         mobileNumber: { type: String, required: true },
+        email: { type: String, required: true, unique: true },
         homeNumber: { type: String },
         physicalStats: {
             weightKg: Number,
@@ -34,7 +45,7 @@ const employeesInGymSchema = new Schema(
 
         // --- Professional Qualifications ---
         professionalQualifications: {
-            certifications: [String], // e.g., ["Certified Personal Trainer", "Group Fitness Instructor"]
+            certifications: [String ], // e.g., ["Certified Personal Trainer", "Group Fitness Instructor"]
             educationBackground: String,
             previousWorkExperience: String,
             references: [{
@@ -48,11 +59,11 @@ const employeesInGymSchema = new Schema(
             jobTitle: { 
                 type: String, 
                 required: true,
-                enum: ['Manager', 'Personal Trainer', 'Front Desk', 'Cleaner'] 
+                enum: ['Manager', 'Personal Trainer', 'Front Desk', 'Cleaner', 'Receptionist', 'Security Guard', 'Helper'] 
             },
             availability: {
-                workDays: [String], // e.g., ["Monday", "Wednesday", "Friday"]
-                preferredShift: String, // e.g., "Morning", "Evening"
+                workDays: [String],
+                preferredShift: String,
             },
             salaryExpectations: String,
             startDate: { type: Date, required: true },
@@ -78,16 +89,6 @@ const employeesInGymSchema = new Schema(
         },
 
         // --- System & Branch Information ---
-        branch: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Branch',
-            required: [true, 'Employee must be associated with a branch.'],
-        },
-        // Link to the document/image of the physical form
-        formImage: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'EmployeeImage'
-        },
     }, 
     {
         timestamps: true,
@@ -95,4 +96,4 @@ const employeesInGymSchema = new Schema(
 );
 
 
-export const employeesInGym = mongoose.model("employeesInGym", employeesInGymSchema)
+export const Employee = mongoose.model("Employee", employeesInGymSchema)

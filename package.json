@@ -6,8 +6,7 @@
     "javascript"
   ],
   "repository": {
-    "type": "git",
-    "url": "https://simplertechnologies-prod@dev.azure.com/simplertechnologies-prod/gym-backend-main/_git/gym-backend-main"
+    "type": "git"
   },
   "license": "ISC",
   "author": "Satish Verma",

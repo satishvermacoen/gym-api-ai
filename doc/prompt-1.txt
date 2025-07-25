@@ -1,0 +1,3 @@
+I want to build a backend for management system using nodejs, mongoDB, and express.
+To design schema for ownerUser-model for admin user, OwnerUser owns multiple stores in that has employees and daily custumer.
+For this i want to desgin schema. What are the possible method to make this schema. 

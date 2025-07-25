@@ -1,10 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 
-/**
- * Defines the available subscription plans (e.g., Bronze, Silver, Gold).
- * This model acts as a template for what users can subscribe to.
- */
-const subscriptionSchema = new Schema(
+
+const subscriptionTypeSchema = new Schema(
   {
     planName: {
       type: String,
@@ -14,7 +11,7 @@ const subscriptionSchema = new Schema(
     },
     planTier: {
       type: String,
-      enum: ["FREE", "PRO", "PREMIUM", "ENTERPRISE"],
+      enum: ["FREE", "PREMIUM", "ENTERPRISE"],
       required: true,
       unique: true,
     },
@@ -29,6 +26,7 @@ const subscriptionSchema = new Schema(
     // Duration of the plan in days
     durationInDays: {
       type: Number,
+      enum: [30, 60, 90, 180, 365],
       required: true,
     },
     // List of features or permissions granted by this plan
@@ -56,4 +54,4 @@ const subscriptionSchema = new Schema(
   }
 );
 
-export const subscription = mongoose.model("Subscription", subscriptionSchema);
+export const Subscriptions = mongoose.model("Subscriptions", subscriptionTypeSchema);

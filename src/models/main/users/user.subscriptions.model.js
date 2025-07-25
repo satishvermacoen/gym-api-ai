@@ -38,33 +38,10 @@ const userOwnerSubscriptionSchema = new Schema(
       amountPaid: Number,
       paymentDate: Date,
     },
-    
-    // planHistory: [
-    //   {
-    //     planId: {
-    //       type: Schema.Types.ObjectId,
-    //       ref: "Subscription",
-    //       required: true,
-    //     },
-    //     startDate: {
-    //       type: Date,
-    //       required: true,
-    //     },
-    //     endDate: {
-    //       type: Date,
-    //       required: true,
-    //     },
-    //   },
-    // ],
-    // A flag to indicate if the subscription will auto-renew
-    autoRenew: {
-        type: Boolean,
-        default: false,
-    }
   },
   {
     timestamps: true,
   }
 );
 
-export const UserSubscription = mongoose.model("UserOwnerSubscription", userOwnerSubscriptionSchema);
+export const UserSubscription = model("UserOwnerSubscription", userOwnerSubscriptionSchema);

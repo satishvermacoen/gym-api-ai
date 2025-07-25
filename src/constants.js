@@ -1,4 +1,4 @@
-export const DB_NAME = "test";
+export const DB_NAME = "GYM-FUSSION";
 
 
 export const dbConfigs = {

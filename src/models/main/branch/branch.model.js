@@ -12,7 +12,7 @@ const branchGymSchema = new Schema(
         },
         owner: [
             {
-            type: mongoose.Schema.Types.ObjectId,
+            type: Schema.Types.ObjectId,
             ref: 'UserOwner',
             required: [true, 'A branch must have an owner.'],
             }
@@ -24,7 +24,10 @@ const branchGymSchema = new Schema(
                 default: 'Point',
                 enum: ['Point'],
             },
-            coordinates: [Number], // [longitude, latitude]
+            coordinates: {
+                type: [Number],
+                require: false,
+            },
             address: {
                 type: String,
                 required: [true, 'A branch must have an address.'],
@@ -56,7 +59,7 @@ const branchGymSchema = new Schema(
             },
             phone: {
                 type: String,
-                required: true,
+                required: false,
                 },
             email: {
                 type: String,
@@ -71,30 +74,22 @@ const branchGymSchema = new Schema(
                 required: true,
                 default: 'Monday, Tuesday, Wednesday, Thursday, Friday, Saturday'
             },
-            open: String, // e.g., "06:00"
-            close: String, // e.g., "22:00"
+            open: String, 
+            close: String,
             isOpen: {
                 type: Boolean,
                 default: true
             }
         }],
-        amenities: [String], // e.g., ["Swimming Pool", "Sauna", "Free WiFi"]
-        membershipPlans: [{
-            name: String, // e.g., "Gold", "Silver"
-            price: Number,
-            durationInDays: Number,
-            features: [String],
-        }],
         staff: [{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User',
+            type: Schema.Types.ObjectId,
+            ref: 'employee',
         }],
     },
     {
         timestamps: true
     },       
-    
 );
 
 
-export const branchGym = mongoose.model("BranchGym", branchGymSchema)
+export const Branch = mongoose.model("Branch", branchGymSchema)
